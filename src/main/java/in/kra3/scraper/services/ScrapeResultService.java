@@ -22,7 +22,7 @@ public interface ScrapeResultService {
      * @param jobId
      * @return ScrapeResult
      */
-    ScrapeResult getResult(String jobId);
+    ScrapeResult getResult(String jobId) throws Exception;
 
 
     default boolean isValidUrl(String url) {

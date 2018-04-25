@@ -1,18 +1,20 @@
 package in.kra3.scraper.repositories;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 
 
-@Repository
+@Repository("redis:lookup-repo")
 public class LookupRepositoryImpl implements LookupRepository {
+    // PS: redis implementation could be changed to a bloom filter to save memory.
+
     private static final String KEY = "Urls";
     private StringRedisTemplate redisTemplate;
-    private HashOperations hashOperations;
+    private SetOperations setOperations;
 
     @Autowired
     public LookupRepositoryImpl(StringRedisTemplate redisTemplate) {
@@ -21,21 +23,23 @@ public class LookupRepositoryImpl implements LookupRepository {
 
     @PostConstruct
     private void init() {
-        hashOperations = redisTemplate.opsForHash();
+        setOperations = redisTemplate.opsForSet();
     }
 
     @Override
-    public void addJob(String url, String jobId) {
-        hashOperations.put(KEY, getKeyForUrl(url), jobId);
+    public String addJob(String url) {
+        String jobId = getKeyForUrl(url);
+        setOperations.add(KEY, jobId);
+        return jobId;
     }
 
     @Override
-    public boolean isJobExists(String url) {
-        return hashOperations.hasKey(KEY, getKeyForUrl(url));
+    public boolean hasJobExists(String jobId) {
+        return setOperations.isMember(KEY, jobId);
     }
 
     @Override
-    public String getJobId(String url) {
-        return (String) hashOperations.get(KEY, getKeyForUrl(url));
+    public boolean isJobExistsForUrl(String url) {
+        return setOperations.isMember(KEY, getKeyForUrl(url));
     }
 }

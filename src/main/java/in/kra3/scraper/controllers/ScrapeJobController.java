@@ -12,6 +12,7 @@ import java.util.Map;
 
 
 @Controller
+@RequestMapping(path = "/scrape-jobs")
 public class ScrapeJobController {
     private ScrapeResultService scrapeResultService;
 
@@ -36,7 +37,11 @@ public class ScrapeJobController {
     @GetMapping(path = "/{jobId}", produces = "application/json")
     @ResponseBody
     ScrapeResult getResult(@PathVariable String jobId) {
-        return scrapeResultService.getResult(jobId);
+        try {
+            return scrapeResultService.getResult(jobId);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage()); // @todo: 400 bad request
+        }
     }
 
 }

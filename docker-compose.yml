@@ -2,19 +2,23 @@ version: '3'
 services:
   rabbit:
     image: rabbitmq:management
+    hostname: rabbit
     ports:
       - "5672:5672"
       - "15672:15672"
   redis:
     image: redis:alpine
+    hostname: redis
     ports:
       - "6379:6379"
-  web:
-    build:
-      context: ./
-      dockerfile: Dockerfile
+  app:
+    image: kra3/scraper:latest
+    hostname: scraper-app
     ports:
-      - 8080
+      - "8080:8080"
     depends_on:
       - "rabbit"
       - "redis"
+    links:
+      - rabbit
+      - redis

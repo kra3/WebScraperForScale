@@ -1,3 +1,43 @@
-./mvnw install dockerfile:build
-docker run -p 8000:8080 kra3/scraper
+# Scraper
+
+Scrape urls and stores results.
+
+Following API is exposed by this application:
+
+- Submit scrape jobs:
+    POST /scrape-jobs/
+    json body: {"url": "url_to_scrape"}
+    returns a unique job id (if accepted)
+
+- Get result of scrape jobs:
+    GET /scrape-jobs/:jobid
+    returns json: { url, title, date, content } if jobId is valid
+
+
+## Architecture
+
+- An app server to provide REST end-points
+- de-duplication of urls through redis (in memory db)
+- RabbitMQ as message bus to distribute work (scraping)
+- stores result in HSQL DB. (currently runs in memory mode)
+- docker to build app image
+- docker-compose to layer other services (RabbitMQ & redis for now) and for swarm deployments (could be)
+
+PS: none of the servers are tweaked for performance or for use case.
+PS: scaling of services is not planned in docker-compose (runs as single server mode at the moment)
+PS: workers are not tuned either (number of workers, message prefetch, ack/nack, ...)
+
+## Want to see it in action ?
+
+### Prerequisites
+
+- java 8
+- maven
+- docker
+
+### Build & run
+
+``` bash
+./mvnw package -DskipTests=true
 docker-compose up
+```

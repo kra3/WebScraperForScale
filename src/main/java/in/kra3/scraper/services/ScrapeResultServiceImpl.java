@@ -45,10 +45,12 @@ public class ScrapeResultServiceImpl implements ScrapeResultService {
         // which involves quite a bit infra planning and routing logic.
 
         if (!isValidUrl(url)) {
+            log.warn("Unsupported url " + url);
             throw new Exception("Url is not supported"); // @todo: specific exception
         }
 
         if (lookupRepository.isJobExistsForUrl(url)) { // de-duplication
+            log.warn("duplicate scrape request for url " + url);
             return lookupRepository.getKeyForUrl(url);
         }
 
@@ -71,10 +73,12 @@ public class ScrapeResultServiceImpl implements ScrapeResultService {
     @Override
     public ScrapeResult getResult(String jobId) throws Exception {
         if (!lookupRepository.hasJobExists(jobId)) {
+            log.warn("Job not found for " + jobId);
             throw new Exception("Job not found");
         }
 
         if (!scrapeRecordRepository.existsByJobId(jobId)) {
+            log.warn("Record not found for job " + jobId);
             throw new Exception("result not found in db");
         }
 

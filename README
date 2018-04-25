@@ -14,6 +14,14 @@ Following API is exposed by this application:
     returns json: { url, title, date, content } if jobId is valid
 
 
+Following ports are exposed by docker image:
+
+- 8080: REST service
+- 15672: RabbitMQ monitoring (guest:guest)
+- 5672: RabbitMQ (for debugging)
+- 6379: Redis (for debugging)
+
+
 ## Architecture
 
 - An app server to provide REST end-points
